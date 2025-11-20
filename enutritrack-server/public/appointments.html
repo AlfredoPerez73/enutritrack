@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Citas Médicas - EnutriTrack</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-info {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #2563eb;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .filters-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .filter-input:focus, .filter-select:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #9ca3af;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            color: #4b5563;
+            font-size: 0.875rem;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .patient-card, .doctor-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .patient-avatar, .doctor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .patient-info h4, .doctor-info h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .patient-info p, .doctor-info p {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .datetime-cell {
+            min-width: 180px;
+        }
+
+        .datetime-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .datetime-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .loading, .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: #f3f4f6;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .vitales-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .vital-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .vital-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .vital-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #10b981;
+        }
+
+        .tab.active {
+            color: #10b981;
+            border-bottom-color: #10b981;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .calendar-view {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e5e7eb;
+            border: 1px solid #e5e7eb;
+        }
+
+        .calendar-day {
+            background: white;
+            padding: 1rem;
+            min-height: 120px;
+        }
+
+        .calendar-day-header {
+            background: #f9fafb;
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .calendar-date {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+
+        .calendar-event {
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Gestión de Citas Médicas</h1>
+            <button class="btn btn-primary" onclick="showCreateCitaModal()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Nueva Cita
+            </button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="total-citas">0</div>
+                <div class="stat-label">Total Citas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="citas-pendientes">0</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="citas-completadas">0</div>
+                <div class="stat-label">Completadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="citas-hoy">0</div>
+                <div class="stat-label">Hoy</div>
+            </div>
+        </div>
+
+        <div class="filters-container">
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label class="filter-label">Estado</label>
+                    <select class="filter-select" id="estado-filter" onchange="filterCitas()">
+                        <option value="">Todos los estados</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">Doctor</label>
+                    <select class="filter-select" id="doctor-filter" onchange="filterCitas()">
+                        <option value="">Todos los doctores</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">Paciente</label>
+                    <select class="filter-select" id="paciente-filter" onchange="filterCitas()">
+                        <option value="">Todos los pacientes</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">Fecha Desde</label>
+                    <input type="date" class="filter-input" id="fecha-desde" onchange="filterCitas()">
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">Fecha Hasta</label>
+                    <input type="date" class="filter-input" id="fecha-hasta" onchange="filterCitas()">
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('lista')">Vista Lista</button>
+            <button class="tab" onclick="switchTab('calendario')">Vista Calendario</button>
+        </div>
+
+        <!-- Vista Lista -->
+        <div id="lista-tab" class="tab-content active">
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 class="table-title">Lista de Citas Médicas</h3>
+                    <div class="search-box">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="text" id="search-citas" placeholder="Buscar citas..." onkeyup="filterCitas()">
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Doctor</th>
+                            <th>Fecha y Hora</th>
+                            <th>Tipo Consulta</th>
+                            <th>Estado</th>
+                            <th>Motivo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citas-table">
+                        <tr>
+                            <td colspan="7" class="loading">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                <p>Cargando citas...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Vista Calendario -->
+        <div id="calendario-tab" class="tab-content">
+            <div class="calendar-view">
+                <div class="calendar-header">
+                    <h3 id="calendar-month">Septiembre 2025</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary btn-sm" onclick="changeMonth(-1)">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                            Anterior
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="changeMonth(1)">
+                            Siguiente
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- El calendario se generará dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Crear/Editar Cita -->
+    <div id="cita-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="cita-modal-title">Nueva Cita Médica</h3>
+                <button class="modal-close" onclick="closeModal('cita-modal')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="cita-form">
+                    <input type="hidden" id="cita-id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Paciente *</label>
+                            <select class="form-control" id="cita-usuario-id" required>
+                                <option value="">Seleccionar paciente...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Doctor *</label>
+                            <select class="form-control" id="cita-doctor-id" required>
+                                <option value="">Seleccionar doctor...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Consulta *</label>
+                            <select class="form-control" id="cita-tipo-consulta-id" required>
+                                <option value="">Seleccionar tipo...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Estado *</label>
+                            <select class="form-control" id="cita-estado-id" required>
+                                <option value="">Seleccionar estado...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Fecha y Hora Programada *</label>
+                            <input type="datetime-local" class="form-control" id="cita-fecha-hora" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Próxima Cita Sugerida</label>
+                            <input type="date" class="form-control" id="cita-proxima-cita">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Motivo de la Consulta</label>
+                        <textarea class="form-control form-textarea" id="cita-motivo" placeholder="Describa el motivo de la consulta..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Observaciones</label>
+                        <textarea class="form-control form-textarea" id="cita-observaciones" placeholder="Observaciones durante la consulta..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Diagnóstico</label>
+                        <textarea class="form-control form-textarea" id="cita-diagnostico" placeholder="Diagnóstico médico..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tratamiento Recomendado</label>
+                        <textarea class="form-control form-textarea" id="cita-tratamiento" placeholder="Tratamiento recomendado..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Signos Vitales</label>
+                        <div class="vitales-grid">
+                            <div class="vital-item">
+                                <label class="vital-label">Peso (kg)</label>
+                                <input type="number" class="form-control" id="cita-peso" step="0.1" min="0">
+                            </div>
+                            <div class="vital-item">
+                                <label class="vital-label">Altura (cm)</label>
+                                <input type="number" class="form-control" id="cita-altura" step="0.1" min="0">
+                            </div>
+                            <div class="vital-item">
+                                <label class="vital-label">Tensión Sistólica</label>
+                                <input type="number" class="form-control" id="cita-tension-sistolica" min="0">
+                            </div>
+                            <div class="vital-item">
+                                <label class="vital-label">Tensión Diastólica</label>
+                                <input type="number" class="form-control" id="cita-tension-diastolica" min="0">
+                            </div>
+                            <div class="vital-item">
+                                <label class="vital-label">Frecuencia Cardíaca</label>
+                                <input type="number" class="form-control" id="cita-frecuencia-cardiaca" min="0">
+                            </div>
+                            <div class="vital-item">
+                                <label class="vital-label">Temperatura (°C)</label>
+                                <input type="number" class="form-control" id="cita-temperatura" step="0.1" min="0">
+                            </div>
+                            <div class="vital-item">
+                                <label class="vital-label">Saturación Oxígeno (%)</label>
+                                <input type="number" class="form-control" id="cita-saturacion-oxigeno" min="0" max="100">
+                            </div>
+                            <div class="vital-item">
+                                <label class="vital-label">Notas Vitales</label>
+                                <textarea class="form-control" id="cita-notas-vitales" placeholder="Notas adicionales..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('cita-modal')">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" onclick="saveCita()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Guardar Cita
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allCitas = [];
+        let allPatients = [];
+        let allDoctors = [];
+        let allTiposConsulta = [];
+        let allEstadosCita = [];
+        let currentCitaId = null;
+        let currentDate = new Date();
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCitas();
+            loadPatients();
+            loadDoctors();
+            loadTiposConsulta();
+            loadEstadosCita();
+            generateCalendar();
+        });
+
+        // Cargar citas desde la API
+        async function loadCitas() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/citas-medicas', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar citas');
+                }
+
+                allCitas = await response.json();
+                renderCitas(allCitas);
+                updateStats(allCitas);
+                populateFilters();
+                generateCalendar();
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('citas-table').innerHTML = 
+                    '<tr><td colspan="7" class="empty-state">Error al cargar citas médicas</td></tr>';
+            }
+        }
+
+        // Cargar datos auxiliares
+        async function loadPatients() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/dashboard/patients', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    allPatients = await response.json();
+                    populatePatientSelect();
+                }
+            } catch (error) {
+                console.error('Error al cargar pacientes:', error);
+            }
+        }
+
+        async function loadDoctors() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/dashboard/doctors', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    allDoctors = await response.json();
+                    populateDoctorSelect();
+                }
+            } catch (error) {
+                console.error('Error al cargar doctores:', error);
+            }
+        }
+
+        async function loadTiposConsulta() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/tipos-consulta', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    allTiposConsulta = await response.json();
+                    populateTipoConsultaSelect();
+                }
+            } catch (error) {
+                console.error('Error al cargar tipos de consulta:', error);
+            }
+        }
+
+        async function loadEstadosCita() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/estados-cita', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    allEstadosCita = await response.json();
+                    populateEstadoSelect();
+                }
+            } catch (error) {
+                console.error('Error al cargar estados de cita:', error);
+            }
+        }
+
+        // Poblar selects
+        function populatePatientSelect() {
+            const select = document.getElementById('cita-usuario-id');
+            const filterSelect = document.getElementById('paciente-filter');
+            
+            select.innerHTML = '<option value="">Seleccionar paciente...</option>';
+            filterSelect.innerHTML = '<option value="">Todos los pacientes</option>';
+            
+            allPatients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.textContent = `${patient.nombre} (${patient.email})`;
+                select.appendChild(option.cloneNode(true));
+                filterSelect.appendChild(option);
+            });
+        }
+
+        function populateDoctorSelect() {
+            const select = document.getElementById('cita-doctor-id');
+            const filterSelect = document.getElementById('doctor-filter');
+            
+            select.innerHTML = '<option value="">Seleccionar doctor...</option>';
+            filterSelect.innerHTML = '<option value="">Todos los doctores</option>';
+            
+            allDoctors.forEach(doctor => {
+                const option = document.createElement('option');
+                option.value = doctor.id;
+                option.textContent = `${doctor.nombre} (${doctor.especialidad})`;
+                select.appendChild(option.cloneNode(true));
+                filterSelect.appendChild(option);
+            });
+        }
+
+        function populateTipoConsultaSelect() {
+            const select = document.getElementById('cita-tipo-consulta-id');
+            select.innerHTML = '<option value="">Seleccionar tipo...</option>';
+            
+            allTiposConsulta.forEach(tipo => {
+                const option = document.createElement('option');
+                option.value = tipo.id;
+                option.textContent = tipo.nombre;
+                select.appendChild(option);
+            });
+        }
+
+        function populateEstadoSelect() {
+            const select = document.getElementById('cita-estado-id');
+            const filterSelect = document.getElementById('estado-filter');
+            
+            select.innerHTML = '<option value="">Seleccionar estado...</option>';
+            filterSelect.innerHTML = '<option value="">Todos los estados</option>';
+            
+            allEstadosCita.forEach(estado => {
+                const option = document.createElement('option');
+                option.value = estado.id;
+                option.textContent = estado.nombre;
+                select.appendChild(option.cloneNode(true));
+                filterSelect.appendChild(option);
+            });
+        }
+
+        function populateFilters() {
+            // Los filtros ya se poblaron en las funciones anteriores
+        }
+
+        // Renderizar tabla de citas
+        function renderCitas(citas) {
+            const tbody = document.getElementById('citas-table');
+            
+            if (!citas || citas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No hay citas médicas registradas</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = citas.map(cita => `
+                <tr>
+                    <td>
+                        <div class="patient-card">
+                            <div class="patient-avatar">${getInitials(cita.usuario?.nombre || 'NN')}</div>
+                            <div class="patient-info">
+                                <h4>${cita.usuario?.nombre || 'N/A'}</h4>
+                                <p>${cita.usuario?.email || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="doctor-card">
+                            <div class="doctor-avatar">${getInitials(cita.doctor?.nombre || 'DD')}</div>
+                            <div class="doctor-info">
+                                <h4>${cita.doctor?.nombre || 'N/A'}</h4>
+                                <p>${cita.doctor?.especialidad || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="datetime-cell">
+                        <div class="datetime-value">
+                            ${formatDateTime(cita.fecha_hora_programada)}
+                        </div>
+                        ${cita.fecha_hora_inicio ? `
+                            <div class="datetime-label">
+                                Inicio: ${formatTime(cita.fecha_hora_inicio)}
+                            </div>
+                        ` : ''}
+                        ${cita.fecha_hora_fin ? `
+                            <div class="datetime-label">
+                                Fin: ${formatTime(cita.fecha_hora_fin)}
+                            </div>
+                        ` : ''}
+                    </td>
+                    <td>${cita.tipo_consulta?.nombre || 'N/A'}</td>
+                    <td>
+                        <span class="badge ${getEstadoBadgeClass(cita.estado_cita?.nombre)}">
+                            ${cita.estado_cita?.nombre || 'N/A'}
+                        </span>
+                    </td>
+                    <td>
+                        <small style="color: #6b7280;">${cita.motivo || 'Sin motivo especificado'}</small>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary btn-sm" onclick="editCita('${cita.id}')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Editar
+                            </button>
+                            <button class="btn btn-info btn-sm" onclick="viewCitaDetails('${cita.id}')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                Ver
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteCita('${cita.id}')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Eliminar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Actualizar estadísticas
+        function updateStats(citas) {
+            const totalCitas = citas.length;
+            const citasPendientes = citas.filter(c => c.estado_cita?.nombre?.toLowerCase().includes('pendiente')).length;
+            const citasCompletadas = citas.filter(c => c.estado_cita?.nombre?.toLowerCase().includes('completada')).length;
+            
+            const hoy = new Date().toDateString();
+            const citasHoy = citas.filter(c => 
+                new Date(c.fecha_hora_programada).toDateString() === hoy
+            ).length;
+
+            document.getElementById('total-citas').textContent = totalCitas;
+            document.getElementById('citas-pendientes').textContent = citasPendientes;
+            document.getElementById('citas-completadas').textContent = citasCompletadas;
+            document.getElementById('citas-hoy').textContent = citasHoy;
+        }
+
+        // Filtrar citas
+        function filterCitas() {
+            const searchTerm = document.getElementById('search-citas').value.toLowerCase();
+            const estado = document.getElementById('estado-filter').value;
+            const doctor = document.getElementById('doctor-filter').value;
+            const paciente = document.getElementById('paciente-filter').value;
+            const fechaDesde = document.getElementById('fecha-desde').value;
+            const fechaHasta = document.getElementById('fecha-hasta').value;
+            
+            let filtered = allCitas.filter(cita => {
+                const matchesSearch = 
+                    cita.usuario?.nombre?.toLowerCase().includes(searchTerm) ||
+                    cita.doctor?.nombre?.toLowerCase().includes(searchTerm) ||
+                    cita.motivo?.toLowerCase().includes(searchTerm);
+                
+                const matchesEstado = !estado || cita.estado_cita_id === estado;
+                const matchesDoctor = !doctor || cita.doctor_id === doctor;
+                const matchesPaciente = !paciente || cita.usuario_id === paciente;
+                
+                const citaDate = new Date(cita.fecha_hora_programada).toISOString().split('T')[0];
+                const matchesFechaDesde = !fechaDesde || citaDate >= fechaDesde;
+                const matchesFechaHasta = !fechaHasta || citaDate <= fechaHasta;
+                
+                return matchesSearch && matchesEstado && matchesDoctor && matchesPaciente && matchesFechaDesde && matchesFechaHasta;
+            });
+
+            renderCitas(filtered);
+        }
+
+        // Funcionalidad de calendario
+        function generateCalendar() {
+            const calendarGrid = document.getElementById('calendar-grid');
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            
+            document.getElementById('calendar-month').textContent = 
+                `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+            
+            let calendarHTML = '';
+            
+            // Encabezados de días
+            const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            dayNames.forEach(day => {
+                calendarHTML += `<div class="calendar-day-header">${day}</div>`;
+            });
+            
+            // Días del calendario
+            for (let i = 0; i < 42; i++) {
+                const currentDay = new Date(startDate);
+                currentDay.setDate(startDate.getDate() + i);
+                
+                const dayCitas = allCitas.filter(cita => {
+                    const citaDate = new Date(cita.fecha_hora_programada);
+                    return citaDate.toDateString() === currentDay.toDateString();
+                });
+                
+                const isCurrentMonth = currentDay.getMonth() === currentDate.getMonth();
+                const isToday = currentDay.toDateString() === new Date().toDateString();
+                
+                calendarHTML += `
+                    <div class="calendar-day ${!isCurrentMonth ? 'calendar-day-other' : ''}">
+                        <div class="calendar-date ${isToday ? 'calendar-date-today' : ''}">
+                            ${currentDay.getDate()}
+                        </div>
+                        ${dayCitas.map(cita => `
+                            <div class="calendar-event" onclick="viewCitaDetails('${cita.id}')" 
+                                 style="background: ${getEventColor(cita.estado_cita?.nombre)}">
+                                ${formatTime(cita.fecha_hora_programada)} - ${cita.usuario?.nombre.split(' ')[0]}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+            
+            calendarGrid.innerHTML = calendarHTML;
+        }
+
+        function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            generateCalendar();
+        }
+
+        // Mostrar modal para crear cita
+        function showCreateCitaModal() {
+            currentCitaId = null;
+            document.getElementById('cita-modal-title').textContent = 'Nueva Cita Médica';
+            document.getElementById('cita-form').reset();
+            document.getElementById('cita-id').value = '';
+            
+            // Establecer fecha y hora por defecto (próxima hora disponible)
+            const now = new Date();
+            now.setMinutes(0, 0, 0);
+            now.setHours(now.getHours() + 1);
+            document.getElementById('cita-fecha-hora').value = 
+                now.toISOString().slice(0, 16);
+                
+            openModal('cita-modal');
+        }
+
+        // Editar cita
+        async function editCita(citaId) {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`/citas-medicas/${citaId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar cita');
+                }
+
+                const cita = await response.json();
+                currentCitaId = citaId;
+
+                document.getElementById('cita-modal-title').textContent = 'Editar Cita Médica';
+                document.getElementById('cita-id').value = cita.id;
+                document.getElementById('cita-usuario-id').value = cita.usuario_id;
+                document.getElementById('cita-doctor-id').value = cita.doctor_id;
+                document.getElementById('cita-tipo-consulta-id').value = cita.tipo_consulta_id;
+                document.getElementById('cita-estado-id').value = cita.estado_cita_id;
+                document.getElementById('cita-fecha-hora').value = 
+                    new Date(cita.fecha_hora_programada).toISOString().slice(0, 16);
+                document.getElementById('cita-motivo').value = cita.motivo || '';
+                document.getElementById('cita-observaciones').value = cita.observaciones || '';
+                document.getElementById('cita-diagnostico').value = cita.diagnostico || '';
+                document.getElementById('cita-tratamiento').value = cita.tratamiento_recomendado || '';
+                
+                if (cita.proxima_cita_sugerida) {
+                    document.getElementById('cita-proxima-cita').value = 
+                        new Date(cita.proxima_cita_sugerida).toISOString().slice(0, 10);
+                }
+
+                // Llenar datos de vitales si existen
+                if (cita.vitales) {
+                    document.getElementById('cita-peso').value = cita.vitales.peso || '';
+                    document.getElementById('cita-altura').value = cita.vitales.altura || '';
+                    document.getElementById('cita-tension-sistolica').value = cita.vitales.tension_arterial_sistolica || '';
+                    document.getElementById('cita-tension-diastolica').value = cita.vitales.tension_arterial_diastolica || '';
+                    document.getElementById('cita-frecuencia-cardiaca').value = cita.vitales.frecuencia_cardiaca || '';
+                    document.getElementById('cita-temperatura').value = cita.vitales.temperatura || '';
+                    document.getElementById('cita-saturacion-oxigeno').value = cita.vitales.saturacion_oxigeno || '';
+                    document.getElementById('cita-notas-vitales').value = cita.vitales.notas || '';
+                }
+
+                openModal('cita-modal');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los datos de la cita');
+            }
+        }
+
+        // Ver detalles de cita (modal de solo lectura)
+        async function viewCitaDetails(citaId) {
+            await editCita(citaId); // Reutiliza la función de edición para cargar datos
+            // Aquí podrías deshabilitar los campos para modo solo lectura
+        }
+
+        // Guardar cita (crear o actualizar)
+        async function saveCita() {
+            const form = document.getElementById('cita-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const citaData = {
+                usuario_id: document.getElementById('cita-usuario-id').value,
+                doctor_id: document.getElementById('cita-doctor-id').value,
+                tipo_consulta_id: document.getElementById('cita-tipo-consulta-id').value,
+                estado_cita_id: document.getElementById('cita-estado-id').value,
+                fecha_hora_programada: new Date(document.getElementById('cita-fecha-hora').value).toISOString(),
+                motivo: document.getElementById('cita-motivo').value || null,
+                observaciones: document.getElementById('cita-observaciones').value || null,
+                diagnostico: document.getElementById('cita-diagnostico').value || null,
+                tratamiento_recomendado: document.getElementById('cita-tratamiento').value || null,
+                proxima_cita_sugerida: document.getElementById('cita-proxima-cita').value || null,
+                vitales: {
+                    peso: document.getElementById('cita-peso').value ? parseFloat(document.getElementById('cita-peso').value) : null,
+                    altura: document.getElementById('cita-altura').value ? parseFloat(document.getElementById('cita-altura').value) : null,
+                    tension_arterial_sistolica: document.getElementById('cita-tension-sistolica').value ? parseInt(document.getElementById('cita-tension-sistolica').value) : null,
+                    tension_arterial_diastolica: document.getElementById('cita-tension-diastolica').value ? parseInt(document.getElementById('cita-tension-diastolica').value) : null,
+                    frecuencia_cardiaca: document.getElementById('cita-frecuencia-cardiaca').value ? parseInt(document.getElementById('cita-frecuencia-cardiaca').value) : null,
+                    temperatura: document.getElementById('cita-temperatura').value ? parseFloat(document.getElementById('cita-temperatura').value) : null,
+                    saturacion_oxigeno: document.getElementById('cita-saturacion-oxigeno').value ? parseInt(document.getElementById('cita-saturacion-oxigeno').value) : null,
+                    notas: document.getElementById('cita-notas-vitales').value || null
+                }
+            };
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const url = currentCitaId ? `/citas-medicas/${currentCitaId}` : '/citas-medicas';
+                const method = currentCitaId ? 'PATCH' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(citaData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al guardar cita');
+                }
+
+                alert(currentCitaId ? 'Cita actualizada exitosamente' : 'Cita creada exitosamente');
+                closeModal('cita-modal');
+                loadCitas();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al guardar la cita: ' + error.message);
+            }
+        }
+
+        // Eliminar cita
+        async function deleteCita(citaId) {
+            if (!confirm('¿Está seguro de que desea eliminar esta cita? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`/citas-medicas/${citaId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al eliminar cita');
+                }
+
+                alert('Cita eliminada exitosamente');
+                loadCitas();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar la cita: ' + error.message);
+            }
+        }
+
+        // Funciones de utilidad
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-MX') + ' ' + date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getEstadoBadgeClass(estado) {
+            if (!estado) return 'badge-secondary';
+            
+            const estadoLower = estado.toLowerCase();
+            if (estadoLower.includes('pendiente')) return 'badge-warning';
+            if (estadoLower.includes('completada')) return 'badge-success';
+            if (estadoLower.includes('cancelada')) return 'badge-danger';
+            return 'badge-info';
+        }
+
+        function getEventColor(estado) {
+            if (!estado) return '#6b7280';
+            
+            const estadoLower = estado.toLowerCase();
+            if (estadoLower.includes('pendiente')) return '#f59e0b';
+            if (estadoLower.includes('completada')) return '#10b981';
+            if (estadoLower.includes('cancelada')) return '#ef4444';
+            return '#3b82f6';
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

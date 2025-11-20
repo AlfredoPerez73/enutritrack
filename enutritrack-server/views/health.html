@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Dashboard - Microservicios</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            height: 100%;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            padding: 20px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            position: relative;
+        }
+        
+        .monitoring-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .monitoring-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .status-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .refresh-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .service-card {
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            transition: var(--transition);
+            border-left: 5px solid var(--secondary-color);
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .service-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .status-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        .status-healthy {
+            background-color: var(--success-color);
+            box-shadow: 0 0 10px var(--success-color);
+        }
+        
+        .status-warning {
+            background-color: var(--warning-color);
+            box-shadow: 0 0 10px var(--warning-color);
+        }
+        
+        .status-error {
+            background-color: var(--danger-color);
+            box-shadow: 0 0 10px var(--danger-color);
+        }
+        
+        .status-unknown {
+            background-color: #95a5a6;
+            box-shadow: 0 0 10px #95a5a6;
+        }
+        
+        .service-details {
+            margin-bottom: 15px;
+        }
+        
+        .service-url {
+            font-family: monospace;
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+        
+        .service-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #d5dbdb;
+        }
+        
+        .config-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .config-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .traffic-light {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .light {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 10px;
+            opacity: 0.3;
+            transition: var(--transition);
+        }
+        
+        .light.active {
+            opacity: 1;
+            box-shadow: 0 0 20px currentColor;
+        }
+        
+        .red {
+            background-color: var(--danger-color);
+        }
+        
+        .yellow {
+            background-color: var(--warning-color);
+        }
+        
+        .green {
+            background-color: var(--success-color);
+        }
+        
+        .status-summary {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .last-updated {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Health Dashboard</h1>
+            <p class="subtitle">Monitoreo de Microservicios</p>
+            <div class="monitoring-status">
+                <div class="monitoring-dot"></div>
+                <span>Monitoreo activo</span>
+            </div>
+        </header>
+        
+        <div class="dashboard">
+            <section class="status-section">
+                <h2 class="section-title">
+                    Estado de los Microservicios
+                    <div class="refresh-controls">
+                        <span>Actualización automática cada 10 segundos</span>
+                        <button class="btn btn-secondary" id="refresh-now">Actualizar ahora</button>
+                    </div>
+                </h2>
+                
+                <div class="traffic-light">
+                    <div class="light red" id="red-light"></div>
+                    <div class="light yellow" id="yellow-light"></div>
+                    <div class="light green" id="green-light"></div>
+                </div>
+                
+                <div class="status-summary" id="status-summary">
+                    Estado general: Verificando...
+                </div>
+                <div class="last-updated" id="last-updated">
+                    Última verificación: -
+                </div>
+                
+                <div class="services-grid" id="services-container">
+                    <!-- Los servicios se cargarán aquí dinámicamente -->
+                </div>
+            </section>
+            
+            <section class="config-section">
+                <h2 class="section-title">Configuración de Microservicios</h2>
+                
+                <div class="config-form" id="config-form">
+                    <!-- Los campos de configuración se cargarán aquí dinámicamente -->
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="reset-btn">Restablecer</button>
+                    <button type="button" class="btn btn-primary" id="save-btn">Guardar Configuración</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Datos iniciales de los microservicios
+        const initialServices = [
+            { id: 1, name: "Servicio de Usuarios", ip: "192.168.1.101", port: "3001", status: "unknown" },
+            { id: 2, name: "Servicio de Historial Medico", ip: "192.168.1.102", port: "3002", status: "unknown" },
+            { id: 3, name: "Servicio de Nutrición", ip: "192.168.1.103", port: "3003", status: "unknown" },
+            { id: 4, name: "Servicio de Autenticación", ip: "192.168.1.104", port: "3004", status: "unknown" },
+            { id: 5, name: "Servicio de Actividad Fisica", ip: "192.168.1.105", port: "3005", status: "unknown" },
+            { id: 6, name: "Servicio de Recomendaciones", ip: "192.168.1.106", port: "3006", status: "unknown" },
+            { id: 7, name: "Servicio de Doctor", ip: "192.168.1.107", port: "3007", status: "unknown" },
+            { id: 8, name: "Servicio de Citas Medicas", ip: "192.168.1.108", port: "3008", status: "unknown" },
+            { id: 9, name: "Servicio de Alertas", ip: "192.168.1.109", port: "3009", status: "unknown" }
+        ];
+
+        // Cargar servicios desde localStorage o usar los iniciales
+        let services = JSON.parse(localStorage.getItem('microservices')) || initialServices;
+        
+        // Intervalo de monitoreo (10 segundos)
+        let monitoringInterval;
+        const MONITORING_INTERVAL_MS = 10000;
+
+        // Función para verificar el estado de un servicio
+        async function checkServiceStatus(service) {
+            const url = `http://${service.ip}:${service.port}/health`;
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    mode: 'no-cors', // Para evitar problemas CORS en desarrollo
+                    cache: 'no-cache'
+                });
+                
+                // Si llegamos aquí, el servicio está activo
+                return 'healthy';
+            } catch (error) {
+                // Si hay error de CORS, intentamos con un método alternativo
+                try {
+                    // Intentamos cargar una imagen pequeña desde el servicio
+                    const img = new Image();
+                    await new Promise((resolve, reject) => {
+                        img.onload = resolve;
+                        img.onerror = reject;
+                        img.src = `http://${service.ip}:${service.port}/favicon.ico?t=${Date.now()}`;
+                    });
+                    return 'healthy';
+                } catch (e) {
+                    // Si ambos métodos fallan, el servicio está caído
+                    return 'error';
+                }
+            }
+        }
+
+        // Función para verificar todos los servicios
+        async function checkAllServices() {
+            const updatePromises = services.map(async (service) => {
+                const status = await checkServiceStatus(service);
+                service.status = status;
+                return service;
+            });
+            
+            await Promise.all(updatePromises);
+            
+            // Actualizar la vista
+            renderServices();
+            
+            // Actualizar timestamp
+            document.getElementById('last-updated').textContent = 
+                `Última verificación: ${new Date().toLocaleTimeString()}`;
+            
+            // Guardar en localStorage
+            localStorage.setItem('microservices', JSON.stringify(services));
+        }
+
+        // Función para renderizar los servicios
+        function renderServices() {
+            const container = document.getElementById('services-container');
+            container.innerHTML = '';
+            
+            services.forEach(service => {
+                const serviceCard = document.createElement('div');
+                serviceCard.className = 'service-card';
+                
+                let statusClass = '';
+                let statusText = '';
+                
+                switch(service.status) {
+                    case 'healthy':
+                        statusClass = 'status-healthy';
+                        statusText = 'Saludable';
+                        break;
+                    case 'warning':
+                        statusClass = 'status-warning';
+                        statusText = 'Advertencia';
+                        break;
+                    case 'error':
+                        statusClass = 'status-error';
+                        statusText = 'Error';
+                        break;
+                    default:
+                        statusClass = 'status-unknown';
+                        statusText = 'Desconocido';
+                }
+                
+                serviceCard.innerHTML = `
+                    <div class="service-header">
+                        <div class="service-name">${service.name}</div>
+                        <div class="status-indicator ${statusClass}" title="${statusText}"></div>
+                    </div>
+                    <div class="service-details">
+                        <div class="service-url">${service.ip}:${service.port}</div>
+                    </div>
+                    <div class="service-actions">
+                        <button class="btn btn-secondary" onclick="checkSingleService(${service.id})">Verificar ahora</button>
+                        <button class="btn btn-primary" onclick="editService(${service.id})">Editar</button>
+                    </div>
+                `;
+                
+                container.appendChild(serviceCard);
+            });
+            
+            updateTrafficLight();
+        }
+
+        // Función para verificar un solo servicio manualmente
+        async function checkSingleService(serviceId) {
+            const service = services.find(s => s.id === serviceId);
+            if (!service) return;
+            
+            // Mostrar estado de verificación
+            service.status = 'unknown';
+            renderServices();
+            
+            // Verificar el servicio
+            const status = await checkServiceStatus(service);
+            service.status = status;
+            
+            // Actualizar la vista
+            renderServices();
+            
+            // Guardar en localStorage
+            localStorage.setItem('microservices', JSON.stringify(services));
+        }
+
+        // Función para renderizar el formulario de configuración
+        function renderConfigForm() {
+            const form = document.getElementById('config-form');
+            form.innerHTML = '';
+            
+            services.forEach(service => {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                
+                formGroup.innerHTML = `
+                    <label for="service-${service.id}-name">${service.name}</label>
+                    <input type="text" id="service-${service.id}-ip" value="${service.ip}" placeholder="IP">
+                    <input type="text" id="service-${service.id}-port" value="${service.port}" placeholder="Puerto" readonly>
+                `;
+                
+                form.appendChild(formGroup);
+            });
+        }
+
+        // Función para actualizar el semáforo
+        function updateTrafficLight() {
+            const redLight = document.getElementById('red-light');
+            const yellowLight = document.getElementById('yellow-light');
+            const greenLight = document.getElementById('green-light');
+            const statusSummary = document.getElementById('status-summary');
+            
+            // Contar estados
+            const statusCounts = {
+                error: 0,
+                warning: 0,
+                healthy: 0,
+                unknown: 0
+            };
+            
+            services.forEach(service => {
+                statusCounts[service.status]++;
+            });
+            
+            // Determinar estado general
+            let overallStatus = 'unknown';
+            let statusText = '';
+            
+            if (statusCounts.error > 0) {
+                overallStatus = 'error';
+                statusText = `Crítico - ${statusCounts.error} servicio(s) con errores`;
+            } else if (statusCounts.warning > 0) {
+                overallStatus = 'warning';
+                statusText = `Advertencia - ${statusCounts.warning} servicio(s) tienen problemas`;
+            } else if (statusCounts.healthy === services.length) {
+                overallStatus = 'healthy';
+                statusText = 'Óptimo - Todos los servicios funcionan correctamente';
+            } else {
+                overallStatus = 'unknown';
+                statusText = 'Desconocido - No se ha verificado el estado';
+            }
+            
+            // Actualizar semáforo
+            redLight.classList.toggle('active', overallStatus === 'error');
+            yellowLight.classList.toggle('active', overallStatus === 'warning');
+            greenLight.classList.toggle('active', overallStatus === 'healthy');
+            
+            statusSummary.textContent = `Estado general: ${statusText}`;
+        }
+
+        // Función para editar un servicio
+        function editService(serviceId) {
+            const service = services.find(s => s.id === serviceId);
+            if (!service) return;
+            
+            // Desplazamos a la sección de configuración
+            document.querySelector('.config-section').scrollIntoView({ behavior: 'smooth' });
+            
+            // Y resaltamos el servicio correspondiente
+            const ipInput = document.getElementById(`service-${serviceId}-ip`);
+            
+            if (ipInput) {
+                ipInput.focus();
+                ipInput.style.borderColor = '#3498db';
+                
+                setTimeout(() => {
+                    ipInput.style.borderColor = '';
+                }, 2000);
+            }
+        }
+
+        // Función para guardar la configuración
+        function saveConfiguration() {
+            services.forEach(service => {
+                const ipInput = document.getElementById(`service-${service.id}-ip`);
+                
+                if (ipInput) {
+                    service.ip = ipInput.value;
+                    // Al cambiar la configuración, el estado vuelve a desconocido
+                    service.status = 'unknown';
+                }
+            });
+            
+            // Actualizar la vista
+            renderServices();
+            
+            // Guardar en localStorage
+            localStorage.setItem('microservices', JSON.stringify(services));
+            
+            alert('Configuración guardada correctamente');
+            
+            // Verificar todos los servicios después de guardar
+            checkAllServices();
+        }
+
+        // Función para restablecer la configuración
+        function resetConfiguration() {
+            if (confirm('¿Estás seguro de que deseas restablecer la configuración a los valores predeterminados?')) {
+                services = JSON.parse(JSON.stringify(initialServices));
+                localStorage.setItem('microservices', JSON.stringify(services));
+                renderServices();
+                renderConfigForm();
+                alert('Configuración restablecida');
+                
+                // Verificar todos los servicios después de restablecer
+                checkAllServices();
+            }
+        }
+
+        // Iniciar monitoreo automático
+        function startMonitoring() {
+            // Verificar inmediatamente
+            checkAllServices();
+            
+            // Configurar intervalo periódico
+            monitoringInterval = setInterval(checkAllServices, MONITORING_INTERVAL_MS);
+        }
+
+        // Detener monitoreo automático
+        function stopMonitoring() {
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+            }
+        }
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            renderServices();
+            renderConfigForm();
+            
+            // Asignar event listeners a los botones
+            document.getElementById('save-btn').addEventListener('click', saveConfiguration);
+            document.getElementById('reset-btn').addEventListener('click', resetConfiguration);
+            document.getElementById('refresh-now').addEventListener('click', checkAllServices);
+            
+            // Iniciar monitoreo automático
+            startMonitoring();
+        });
+
+        // Limpiar intervalo cuando se cierre la página
+        window.addEventListener('beforeunload', stopMonitoring);
+    </script>
+</body>
+</html>

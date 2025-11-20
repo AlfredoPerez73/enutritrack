@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Medicamentos - EnutriTrack</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: auto;
+        }
+
+        .container {
+            min-height: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .header h1 {
+            font-size: 1.875rem;
+            color: #1f2937;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 0.875rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #f0f0f0;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--card-color), var(--card-color-light));
+            border-radius: 20px 20px 0 0;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card-title {
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            color: var(--card-color);
+            box-shadow: 0 4px 12px var(--card-shadow);
+        }
+
+        .stat-card-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .stat-card-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-card-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        /* Table Container */
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            width: 280px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.625rem 2.5rem 0.625rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .search-box svg {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #9ca3af;
+        }
+
+        .filter-dropdown {
+            padding: 0.625rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            background: white;
+            color: #6b7280;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .filter-dropdown:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            color: #4b5563;
+            font-size: 0.875rem;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            gap: 0.375rem;
+        }
+
+        .badge svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Patient Card */
+        .patient-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .patient-info h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .patient-info p {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Loading & Empty States */
+        .loading, .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .loading svg, .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            opacity: 0.5;
+            color: #9ca3af;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: #f3f4f6;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-close svg {
+            width: 20px;
+            height: 20px;
+            color: #6b7280;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            position: sticky;
+            bottom: 0;
+            background: white;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1.5rem;
+            }
+
+            .stat-card-value {
+                font-size: 2rem;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem;
+            }
+
+            .table-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            th, td {
+                padding: 0.75rem;
+                font-size: 0.75rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-sm {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.5rem;
+            }
+
+            .header {
+                margin-bottom: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-card-value {
+                font-size: 1.75rem;
+            }
+
+            .stat-card-icon {
+                width: 48px;
+                height: 48px;
+            }
+
+            .stat-card-icon svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>Gestión de Medicamentos</h1>
+                <div class="header-description">Sistema de gestión de medicamentos para pacientes</div>
+            </div>
+            <button class="btn btn-primary" onclick="showCreateMedicamentoModal()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Nuevo Medicamento
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card" style="--card-color: #3b82f6; --card-color-light: #60a5fa; --card-bg: #dbeafe; --card-shadow: rgba(59, 130, 246, 0.3);">
+                <div class="stat-card-content">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">Total Medicamentos</span>
+                        <div class="stat-card-icon">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v8a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-card-value" id="stat-total-medicamentos">0</div>
+                    <div class="stat-card-description">Medicamentos registrados en el sistema</div>
+                </div>
+            </div>
+
+            <div class="stat-card" style="--card-color: #10b981; --card-color-light: #34d399; --card-bg: #d1fae5; --card-shadow: rgba(16, 185, 129, 0.3);">
+                <div class="stat-card-content">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">Medicamentos Activos</span>
+                        <div class="stat-card-icon">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-card-value" id="stat-activos-medicamentos">0</div>
+                    <div class="stat-card-description">Medicamentos actualmente activos</div>
+                </div>
+            </div>
+
+            <div class="stat-card" style="--card-color: #f59e0b; --card-color-light: #fbbf24; --card-bg: #fef3c7; --card-shadow: rgba(245, 158, 11, 0.3);">
+                <div class="stat-card-content">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">Vigentes</span>
+                        <div class="stat-card-icon">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="stat-card-value" id="stat-vigentes-medicamentos">0</div>
+                    <div class="stat-card-description">Medicamentos activos y vigentes</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Lista de Medicamentos</h3>
+                <div class="table-actions">
+                    <div class="search-box">
+                        <input type="text" id="search-medicamentos" placeholder="Buscar medicamentos..." onkeyup="filterMedicamentos()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <select class="filter-dropdown" id="filter-status" onchange="filterMedicamentos()">
+                        <option value="">Todos los estados</option>
+                        <option value="activo">Activos</option>
+                        <option value="inactivo">Inactivos</option>
+                        <option value="vigente">Vigentes</option>
+                    </select>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Medicamento</th>
+                        <th>Dosis</th>
+                        <th>Frecuencia</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="medicamentos-table">
+                    <tr>
+                        <td colspan="8" class="loading">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            <p>Cargando medicamentos...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- El resto del HTML (modal y script) permanece igual -->
+    <!-- Create/Edit Modal -->
+    <div id="medicamento-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="medicamento-modal-title">Nuevo Medicamento</h3>
+                <button class="modal-close" onclick="closeModal('medicamento-modal')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="medicamento-form">
+                    <input type="hidden" id="medicamento-id">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="medicamento-usuario">Paciente *</label>
+                        <select class="form-control" id="medicamento-usuario" required>
+                            <option value="">Seleccionar paciente...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="medicamento-nombre">Nombre del Medicamento *</label>
+                        <input type="text" class="form-control" id="medicamento-nombre" required placeholder="Ej: Metformina 500mg">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="medicamento-dosis">Dosis</label>
+                            <input type="text" class="form-control" id="medicamento-dosis" placeholder="Ej: 1 tableta">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="medicamento-frecuencia">Frecuencia</label>
+                            <input type="text" class="form-control" id="medicamento-frecuencia" placeholder="Ej: Cada 8 horas">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="medicamento-fecha-inicio">Fecha Inicio *</label>
+                            <input type="date" class="form-control" id="medicamento-fecha-inicio" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="medicamento-fecha-fin">Fecha Fin</label>
+                            <input type="date" class="form-control" id="medicamento-fecha-fin">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="medicamento-notas">Notas Adicionales</label>
+                        <textarea class="form-control" id="medicamento-notas" placeholder="Instrucciones especiales, observaciones..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="medicamento-activo" checked> 
+                            Medicamento activo
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('medicamento-modal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveMedicamento()">Guardar Medicamento</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let allMedicamentos = [];
+    let allPatients = [];
+    let currentMedicamentoId = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Medicamentos page loaded - CSS corregido');
+        loadMedicamentos();
+        loadPatients();
+        
+        // Forzar scroll al inicio y resetear posición
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+        
+        // Asegurar que el body ocupe el espacio completo
+        document.body.style.minHeight = '100vh';
+        document.body.style.width = '100%';
+    });
+
+    // API calls
+    async function apiCall(endpoint, options = {}) {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.href = '/auth/login';
+            return;
+        }
+
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+        };
+
+        try {
+            const response = await fetch(endpoint, {
+                ...defaultOptions,
+                ...options,
+            });
+
+            if (response.status === 401) {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                window.location.href = '/auth/login';
+                return null;
+            }
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Error en la solicitud');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            alert(error.message || 'Error al conectar con el servidor');
+            throw error;
+        }
+    }
+
+    // Load medicamentos
+    async function loadMedicamentos() {
+        try {
+            const medicamentos = await apiCall('/medicamentos');
+            allMedicamentos = medicamentos;
+            renderMedicamentos(medicamentos);
+            updateStats(medicamentos);
+        } catch (error) {
+            document.getElementById('medicamentos-table').innerHTML = 
+                '<tr><td colspan="8" class="empty-state">Error al cargar medicamentos</td></tr>';
+        }
+    }
+
+    // Load patients for dropdown
+    async function loadPatients() {
+        try {
+            const patients = await apiCall('/dashboard/patients');
+            allPatients = patients;
+            
+            const select = document.getElementById('medicamento-usuario');
+            select.innerHTML = '<option value="">Seleccionar paciente...</option>' +
+                patients.map(patient => 
+                    `<option value="${patient.id}">${patient.nombre} - ${patient.email}</option>`
+                ).join('');
+        } catch (error) {
+            console.error('Error loading patients:', error);
+        }
+    }
+
+    // Render medicamentos table
+    function renderMedicamentos(medicamentos) {
+        const tbody = document.getElementById('medicamentos-table');
+
+        if (!medicamentos || medicamentos.length === 0) {
+            tbody.innerHTML = 
+                '<tr><td colspan="8" class="empty-state">No hay medicamentos registrados</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = medicamentos.map(medicamento => `
+            <tr>
+                <td>
+                    <div class="patient-card">
+                        <div class="patient-avatar">${getInitials(medicamento.usuario?.nombre || 'NN')}</div>
+                        <div class="patient-info">
+                            <h4>${medicamento.usuario?.nombre || 'N/A'}</h4>
+                            <p>${medicamento.usuario?.email || 'N/A'}</p>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <strong>${medicamento.nombre}</strong>
+                    ${medicamento.notas ? `<br><small style="color: #6b7280;">${medicamento.notas}</small>` : ''}
+                </td>
+                <td>${medicamento.dosis || 'N/A'}</td>
+                <td>${medicamento.frecuencia || 'N/A'}</td>
+                <td>${new Date(medicamento.fecha_inicio).toLocaleDateString('es-MX')}</td>
+                <td>${medicamento.fecha_fin ? new Date(medicamento.fecha_fin).toLocaleDateString('es-MX') : 'No especificada'}</td>
+                <td>
+                    <span class="badge ${medicamento.activo ? 'badge-success' : 'badge-danger'}">
+                        ${medicamento.activo ? 'Activo' : 'Inactivo'}
+                    </span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary btn-sm" onclick="editMedicamento('${medicamento.id}')">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Editar
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteMedicamento('${medicamento.id}')">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Eliminar
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Update statistics
+    function updateStats(medicamentos) {
+        const total = medicamentos.length;
+        const activos = medicamentos.filter(m => m.activo).length;
+        const hoy = new Date();
+        const vigentes = medicamentos.filter(m => 
+            m.activo && (!m.fecha_fin || new Date(m.fecha_fin) >= hoy)
+        ).length;
+
+        document.getElementById('stat-total-medicamentos').textContent = total;
+        document.getElementById('stat-activos-medicamentos').textContent = activos;
+        document.getElementById('stat-vigentes-medicamentos').textContent = vigentes;
+    }
+
+    // Filter medicamentos
+    function filterMedicamentos() {
+        const search = document.getElementById('search-medicamentos').value.toLowerCase();
+        const statusFilter = document.getElementById('filter-status').value;
+        const hoy = new Date();
+
+        let filtered = allMedicamentos.filter(medicamento => {
+            const matchesSearch = 
+                medicamento.nombre.toLowerCase().includes(search) ||
+                (medicamento.usuario?.nombre && medicamento.usuario.nombre.toLowerCase().includes(search)) ||
+                (medicamento.dosis && medicamento.dosis.toLowerCase().includes(search)) ||
+                (medicamento.frecuencia && medicamento.frecuencia.toLowerCase().includes(search));
+
+            let matchesStatus = true;
+            if (statusFilter === 'activo') {
+                matchesStatus = medicamento.activo;
+            } else if (statusFilter === 'inactivo') {
+                matchesStatus = !medicamento.activo;
+            } else if (statusFilter === 'vigente') {
+                matchesStatus = medicamento.activo && (!medicamento.fecha_fin || new Date(medicamento.fecha_fin) >= hoy);
+            }
+
+            return matchesSearch && matchesStatus;
+        });
+
+        renderMedicamentos(filtered);
+    }
+
+    // Show create modal
+    function showCreateMedicamentoModal() {
+        currentMedicamentoId = null;
+        document.getElementById('medicamento-modal-title').textContent = 'Nuevo Medicamento';
+        document.getElementById('medicamento-form').reset();
+        document.getElementById('medicamento-id').value = '';
+        document.getElementById('medicamento-activo').checked = true;
+        openModal('medicamento-modal');
+    }
+
+    // Edit medicamento - VERSIÓN CORREGIDA
+    async function editMedicamento(medicamentoId) {
+        try {
+            const medicamento = await apiCall(`/medicamentos/${medicamentoId}`);
+            currentMedicamentoId = medicamentoId;
+
+            document.getElementById('medicamento-modal-title').textContent = 'Editar Medicamento';
+            document.getElementById('medicamento-id').value = medicamento.id;
+            document.getElementById('medicamento-usuario').value = medicamento.usuario_id;
+            document.getElementById('medicamento-nombre').value = medicamento.nombre;
+            document.getElementById('medicamento-dosis').value = medicamento.dosis || '';
+            document.getElementById('medicamento-frecuencia').value = medicamento.frecuencia || '';
+            
+            // Formatear fechas para el input type="date" (YYYY-MM-DD)
+            document.getElementById('medicamento-fecha-inicio').value = 
+                medicamento.fecha_inicio ? medicamento.fecha_inicio.split('T')[0] : '';
+            document.getElementById('medicamento-fecha-fin').value = 
+                medicamento.fecha_fin ? medicamento.fecha_fin.split('T')[0] : '';
+                
+            document.getElementById('medicamento-notas').value = medicamento.notas || '';
+            document.getElementById('medicamento-activo').checked = medicamento.activo;
+
+            openModal('medicamento-modal');
+        } catch (error) {
+            console.error('Error loading medicamento:', error);
+            alert('Error al cargar los datos del medicamento');
+        }
+    }
+
+// Save medicamento - SOLUCIÓN CORRECTA
+async function saveMedicamento() {
+    const form = document.getElementById('medicamento-form');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    try {
+        const fechaInicio = document.getElementById('medicamento-fecha-inicio').value;
+        const fechaFin = document.getElementById('medicamento-fecha-fin').value;
+        
+        if (!fechaInicio) {
+            alert('La fecha de inicio es requerida');
+            return;
+        }
+
+        const medicamentoData = {
+            usuario_id: document.getElementById('medicamento-usuario').value,
+            nombre: document.getElementById('medicamento-nombre').value,
+            dosis: document.getElementById('medicamento-dosis').value || null,
+            frecuencia: document.getElementById('medicamento-frecuencia').value || null,
+            // Enviar como strings en formato YYYY-MM-DD sin la parte de hora
+            fecha_inicio: fechaInicio,
+            fecha_fin: fechaFin || null,
+            notas: document.getElementById('medicamento-notas').value || null,
+            activo: document.getElementById('medicamento-activo').checked
+        };
+
+        console.log('📤 Datos a enviar:', medicamentoData);
+
+        const endpoint = currentMedicamentoId 
+            ? `/medicamentos/${currentMedicamentoId}`
+            : '/medicamentos';
+            
+        const method = currentMedicamentoId ? 'PATCH' : 'POST';
+
+        const response = await apiCall(endpoint, {
+            method: method,
+            body: JSON.stringify(medicamentoData)
+        });
+
+        alert(`Medicamento ${currentMedicamentoId ? 'actualizado' : 'creado'} exitosamente`);
+        closeModal('medicamento-modal');
+        loadMedicamentos();
+        
+    } catch (error) {
+        console.error('Error saving medicamento:', error);
+        alert('Error al guardar el medicamento: ' + (error.message || 'Error desconocido'));
+    }
+}
+
+    // Utility functions
+    function getInitials(name) {
+        return name
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .toUpperCase()
+            .substring(0, 2);
+    }
+
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.add('active');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('medicamento-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('medicamento-modal')) {
+            closeModal('medicamento-modal');
+        }
+    });
+
+    // Forzar scroll al top cuando se carga la página
+    window.onload = function() {
+        window.scrollTo(0, 0);
+    };
+    
+    // También intentar inmediatamente
+    setTimeout(() => {
+        window.scrollTo(0, 0);
+    }, 10);
+</script>
+</body>
+</html>

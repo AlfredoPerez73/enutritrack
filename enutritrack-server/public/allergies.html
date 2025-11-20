@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Alergias - EnutriTrack</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #9ca3af;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            color: #4b5563;
+            font-size: 0.875rem;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .loading, .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: #f3f4f6;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .patient-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .patient-info h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .patient-info p {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .severidad-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .severidad-option {
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .severidad-option:hover {
+            border-color: #10b981;
+        }
+
+        .severidad-option.selected {
+            border-color: #10b981;
+            background: #f0fdf4;
+            color: #065f46;
+        }
+
+        .severidad-option.leve.selected {
+            border-color: #10b981;
+            background: #f0fdf4;
+            color: #065f46;
+        }
+
+        .severidad-option.moderada.selected {
+            border-color: #f59e0b;
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .severidad-option.severa.selected {
+            border-color: #ef4444;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Gestión de Alergias</h1>
+            <button class="btn btn-primary" onclick="showCreateAlergiaModal()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Nueva Alergia
+            </button>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Lista de Alergias</h3>
+                <div class="search-box">
+                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" id="search-alergias" placeholder="Buscar alergias..." onkeyup="filterAlergias()">
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Alergia</th>
+                        <th>Tipo</th>
+                        <th>Severidad</th>
+                        <th>Reacción</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="alergias-table">
+                    <tr>
+                        <td colspan="7" class="loading">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            <p>Cargando alergias...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal para Crear/Editar Alergia -->
+    <div id="alergia-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="alergia-modal-title">Nueva Alergia</h3>
+                <button class="modal-close" onclick="closeModal('alergia-modal')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="alergia-form">
+                    <input type="hidden" id="alergia-id">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Paciente *</label>
+                        <select class="form-control" id="alergia-usuario-id" required>
+                            <option value="">Seleccionar paciente...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Alergia</label>
+                            <input type="text" class="form-control" id="alergia-tipo" placeholder="Ej: Alimentaria, Medicamentosa">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" id="alergia-nombre" placeholder="Ej: Maní, Penicilina" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Severidad *</label>
+                        <div class="severidad-options">
+                            <div class="severidad-option leve" data-value="leve" onclick="selectSeveridad('leve')">
+                                Leve
+                            </div>
+                            <div class="severidad-option moderada" data-value="moderada" onclick="selectSeveridad('moderada')">
+                                Moderada
+                            </div>
+                            <div class="severidad-option severa" data-value="severa" onclick="selectSeveridad('severa')">
+                                Severa
+                            </div>
+                        </div>
+                        <input type="hidden" id="alergia-severidad" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Reacción</label>
+                        <textarea class="form-control form-textarea" id="alergia-reaccion" placeholder="Describa la reacción alérgica..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notas Adicionales</label>
+                        <textarea class="form-control form-textarea" id="alergia-notas" placeholder="Notas adicionales..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="alergia-activa" checked>
+                            Alergia activa
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('alergia-modal')">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" onclick="saveAlergia()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Guardar Alergia
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allAlergias = [];
+        let allPatients = [];
+        let currentAlergiaId = null;
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAlergias();
+            loadPatients();
+        });
+
+        // Cargar alergias desde la API
+        async function loadAlergias() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/alergias', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar alergias');
+                }
+
+                allAlergias = await response.json();
+                renderAlergias(allAlergias);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('alergias-table').innerHTML = 
+                    '<tr><td colspan="7" class="empty-state">Error al cargar alergias</td></tr>';
+            }
+        }
+
+        // Cargar pacientes para el selector
+        async function loadPatients() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/dashboard/patients', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    allPatients = await response.json();
+                    populatePatientSelect();
+                }
+            } catch (error) {
+                console.error('Error al cargar pacientes:', error);
+            }
+        }
+
+        function populatePatientSelect() {
+            const select = document.getElementById('alergia-usuario-id');
+            select.innerHTML = '<option value="">Seleccionar paciente...</option>';
+            
+            allPatients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.textContent = `${patient.nombre} (${patient.email})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Renderizar tabla de alergias
+        function renderAlergias(alergias) {
+            const tbody = document.getElementById('alergias-table');
+            
+            if (!alergias || alergias.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No hay alergias registradas</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = alergias.map(alergia => `
+                <tr>
+                    <td>
+                        <div class="patient-selector" style="padding: 0; background: none;">
+                            <div class="patient-avatar">${getInitials(alergia.usuario?.nombre || 'NN')}</div>
+                            <div class="patient-info">
+                                <h4>${alergia.usuario?.nombre || 'N/A'}</h4>
+                                <p>${alergia.usuario?.email || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <strong>${alergia.nombre}</strong>
+                        ${alergia.notas ? `<br><small style="color: #6b7280;">${alergia.notas}</small>` : ''}
+                    </td>
+                    <td>${alergia.tipo || 'N/A'}</td>
+                    <td>
+                        <span class="badge ${getSeveridadBadgeClass(alergia.severidad)}">
+                            ${getSeveridadText(alergia.severidad)}
+                        </span>
+                    </td>
+                    <td>${alergia.reaccion || 'N/A'}</td>
+                    <td>
+                        <span class="badge ${alergia.activa ? 'badge-success' : 'badge-danger'}">
+                            ${alergia.activa ? 'Activa' : 'Inactiva'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary btn-sm" onclick="editAlergia('${alergia.id}')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Editar
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteAlergia('${alergia.id}')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Eliminar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Filtrar alergias
+        function filterAlergias() {
+            const searchTerm = document.getElementById('search-alergias').value.toLowerCase();
+            const filtered = allAlergias.filter(alergia => 
+                alergia.nombre.toLowerCase().includes(searchTerm) ||
+                (alergia.tipo && alergia.tipo.toLowerCase().includes(searchTerm)) ||
+                (alergia.usuario?.nombre && alergia.usuario.nombre.toLowerCase().includes(searchTerm))
+            );
+            renderAlergias(filtered);
+        }
+
+        // Mostrar modal para crear alergia
+        function showCreateAlergiaModal() {
+            currentAlergiaId = null;
+            document.getElementById('alergia-modal-title').textContent = 'Nueva Alergia';
+            document.getElementById('alergia-form').reset();
+            document.getElementById('alergia-id').value = '';
+            document.getElementById('alergia-severidad').value = '';
+            resetSeveridadSelection();
+            openModal('alergia-modal');
+        }
+
+        // Editar alergia
+        async function editAlergia(alergiaId) {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`/alergias/${alergiaId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar alergia');
+                }
+
+                const alergia = await response.json();
+                currentAlergiaId = alergiaId;
+
+                document.getElementById('alergia-modal-title').textContent = 'Editar Alergia';
+                document.getElementById('alergia-id').value = alergia.id;
+                document.getElementById('alergia-usuario-id').value = alergia.usuario_id;
+                document.getElementById('alergia-tipo').value = alergia.tipo || '';
+                document.getElementById('alergia-nombre').value = alergia.nombre;
+                document.getElementById('alergia-reaccion').value = alergia.reaccion || '';
+                document.getElementById('alergia-notas').value = alergia.notas || '';
+                document.getElementById('alergia-activa').checked = alergia.activa;
+                
+                selectSeveridad(alergia.severidad);
+
+                openModal('alergia-modal');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los datos de la alergia');
+            }
+        }
+
+        // Guardar alergia (crear o actualizar)
+        async function saveAlergia() {
+            const form = document.getElementById('alergia-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const alergiaData = {
+                usuario_id: document.getElementById('alergia-usuario-id').value,
+                tipo: document.getElementById('alergia-tipo').value,
+                nombre: document.getElementById('alergia-nombre').value,
+                severidad: document.getElementById('alergia-severidad').value,
+                reaccion: document.getElementById('alergia-reaccion').value,
+                notas: document.getElementById('alergia-notas').value,
+                activa: document.getElementById('alergia-activa').checked
+            };
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const url = currentAlergiaId ? `/alergias/${currentAlergiaId}` : '/alergias';
+                const method = currentAlergiaId ? 'PATCH' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(alergiaData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al guardar alergia');
+                }
+
+                alert(currentAlergiaId ? 'Alergia actualizada exitosamente' : 'Alergia creada exitosamente');
+                closeModal('alergia-modal');
+                loadAlergias();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al guardar la alergia: ' + error.message);
+            }
+        }
+
+        // Eliminar alergia
+        async function deleteAlergia(alergiaId) {
+            if (!confirm('¿Está seguro de que desea eliminar esta alergia? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`/alergias/${alergiaId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al eliminar alergia');
+                }
+
+                alert('Alergia eliminada exitosamente');
+                loadAlergias();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar la alergia: ' + error.message);
+            }
+        }
+
+        // Funciones de utilidad
+        function selectSeveridad(severidad) {
+            document.querySelectorAll('.severidad-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`.severidad-option[data-value="${severidad}"]`).classList.add('selected');
+            document.getElementById('alergia-severidad').value = severidad;
+        }
+
+        function resetSeveridadSelection() {
+            document.querySelectorAll('.severidad-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+        }
+
+        function getSeveridadText(severidad) {
+            const textos = {
+                'leve': 'Leve',
+                'moderada': 'Moderada',
+                'severa': 'Severa'
+            };
+            return textos[severidad] || severidad;
+        }
+
+        function getSeveridadBadgeClass(severidad) {
+            const clases = {
+                'leve': 'badge-success',
+                'moderada': 'badge-warning',
+                'severa': 'badge-danger'
+            };
+            return clases[severidad] || 'badge-info';
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

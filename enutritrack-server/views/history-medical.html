@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial Médico - EnutriTrack</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .patient-selector {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .patient-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .patient-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+
+        .patient-details h3 {
+            font-size: 1.25rem;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .patient-details p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .history-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            font-size: 1.125rem;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .card-count {
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .item-content {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .item-meta {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: #f3f4f6;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .items-input-container {
+            margin-bottom: 1rem;
+        }
+
+        .items-input {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .items-input input {
+            flex: 1;
+        }
+
+        .items-list-preview {
+            margin-top: 1rem;
+        }
+
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 6px;
+            margin-bottom: 0.25rem;
+        }
+
+        .preview-item span {
+            font-size: 0.875rem;
+        }
+
+        .preview-item button {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Historial Médico</h1>
+            <button class="btn btn-primary" onclick="showEditHistoryModal()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Editar Historial
+            </button>
+        </div>
+
+        <!-- Selector de Paciente -->
+        <div class="patient-selector">
+            <div class="form-group">
+                <label class="form-label">Seleccionar Paciente</label>
+                <select class="form-control" id="patient-select" onchange="loadPatientHistory()">
+                    <option value="">Seleccionar paciente...</option>
+                </select>
+            </div>
+            
+            <div id="selected-patient-info" style="display: none;">
+                <div class="patient-info">
+                    <div class="patient-avatar" id="patient-avatar">NN</div>
+                    <div class="patient-details">
+                        <h3 id="patient-name">Nombre del Paciente</h3>
+                        <p id="patient-email">email@ejemplo.com</p>
+                        <p id="patient-age">Edad: -- años</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid de Historial Médico -->
+        <div class="history-grid">
+            <!-- Condiciones Médicas -->
+            <div class="history-card">
+                <div class="card-header">
+                    <h3>Condiciones Médicas</h3>
+                    <span class="card-count" id="condiciones-count">0</span>
+                </div>
+                <div class="card-body">
+                    <div class="search-box">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="text" id="search-condiciones" placeholder="Buscar condiciones..." onkeyup="filterItems('condiciones')">
+                    </div>
+                    <div class="items-list" id="condiciones-list">
+                        <div class="empty-state">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <p>No hay condiciones médicas registradas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alergias -->
+            <div class="history-card">
+                <div class="card-header">
+                    <h3>Alergias</h3>
+                    <span class="card-count" id="alergias-count">0</span>
+                </div>
+                <div class="card-body">
+                    <div class="search-box">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="text" id="search-alergias" placeholder="Buscar alergias..." onkeyup="filterItems('alergias')">
+                    </div>
+                    <div class="items-list" id="alergias-list">
+                        <div class="empty-state">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                            <p>No hay alergias registradas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medicamentos -->
+            <div class="history-card">
+                <div class="card-header">
+                    <h3>Medicamentos</h3>
+                    <span class="card-count" id="medicamentos-count">0</span>
+                </div>
+                <div class="card-body">
+                    <div class="search-box">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="text" id="search-medicamentos" placeholder="Buscar medicamentos..." onkeyup="filterItems('medicamentos')">
+                    </div>
+                    <div class="items-list" id="medicamentos-list">
+                        <div class="empty-state">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                            </svg>
+                            <p>No hay medicamentos registrados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Historial Médico -->
+    <div id="edit-history-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Editar Historial Médico</h3>
+                <button class="modal-close" onclick="closeModal('edit-history-modal')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="history-form">
+                    <input type="hidden" id="history-user-id">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Condiciones Médicas</label>
+                        <div class="items-input-container">
+                            <div class="items-input">
+                                <input type="text" class="form-control" id="new-condicion" placeholder="Agregar nueva condición...">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addItem('condicion')">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Agregar
+                                </button>
+                            </div>
+                            <div class="items-list-preview" id="condiciones-preview">
+                                <!-- Las condiciones se agregarán aquí dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Alergias</label>
+                        <div class="items-input-container">
+                            <div class="items-input">
+                                <input type="text" class="form-control" id="new-alergia" placeholder="Agregar nueva alergia...">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addItem('alergia')">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Agregar
+                                </button>
+                            </div>
+                            <div class="items-list-preview" id="alergias-preview">
+                                <!-- Las alergias se agregarán aquí dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Medicamentos</label>
+                        <div class="items-input-container">
+                            <div class="items-input">
+                                <input type="text" class="form-control" id="new-medicamento" placeholder="Agregar nuevo medicamento...">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="addItem('medicamento')">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Agregar
+                                </button>
+                            </div>
+                            <div class="items-list-preview" id="medicamentos-preview">
+                                <!-- Los medicamentos se agregarán aquí dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('edit-history-modal')">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" onclick="saveMedicalHistory()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Guardar Historial
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allPatients = [];
+        let currentPatientId = null;
+        let currentMedicalHistory = null;
+        
+        // Arrays temporales para edición
+        let editingCondiciones = [];
+        let editingAlergias = [];
+        let editingMedicamentos = [];
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPatients();
+        });
+
+        // Cargar lista de pacientes
+        async function loadPatients() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/dashboard/patients', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    allPatients = await response.json();
+                    populatePatientSelect();
+                }
+            } catch (error) {
+                console.error('Error al cargar pacientes:', error);
+            }
+        }
+
+        function populatePatientSelect() {
+            const select = document.getElementById('patient-select');
+            select.innerHTML = '<option value="">Seleccionar paciente...</option>';
+            
+            allPatients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.textContent = `${patient.nombre} (${patient.email})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Cargar historial médico del paciente
+        async function loadPatientHistory() {
+            const patientId = document.getElementById('patient-select').value;
+            
+            if (!patientId) {
+                document.getElementById('selected-patient-info').style.display = 'none';
+                clearHistoryDisplay();
+                return;
+            }
+
+            currentPatientId = patientId;
+            const patient = allPatients.find(p => p.id === patientId);
+            
+            if (patient) {
+                document.getElementById('selected-patient-info').style.display = 'block';
+                document.getElementById('patient-avatar').textContent = getInitials(patient.nombre);
+                document.getElementById('patient-name').textContent = patient.nombre;
+                document.getElementById('patient-email').textContent = patient.email;
+                document.getElementById('patient-age').textContent = `Edad: ${patient.edad || '--'} años`;
+            }
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`/medical-history/${patientId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    currentMedicalHistory = await response.json();
+                    displayMedicalHistory(currentMedicalHistory);
+                } else if (response.status === 404) {
+                    // Si no existe historial, mostrar vacío
+                    currentMedicalHistory = {
+                        condiciones: [],
+                        alergias: [],
+                        medicamentos: []
+                    };
+                    displayMedicalHistory(currentMedicalHistory);
+                } else {
+                    throw new Error('Error al cargar historial médico');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Mostrar historial vacío en caso de error
+                currentMedicalHistory = {
+                    condiciones: [],
+                    alergias: [],
+                    medicamentos: []
+                };
+                displayMedicalHistory(currentMedicalHistory);
+            }
+        }
+
+        // Mostrar historial médico en la interfaz
+        function displayMedicalHistory(history) {
+            displayItems('condiciones', history.condiciones || []);
+            displayItems('alergias', history.alergias || []);
+            displayItems('medicamentos', history.medicamentos || []);
+        }
+
+        function displayItems(type, items) {
+            const listElement = document.getElementById(`${type}-list`);
+            const countElement = document.getElementById(`${type}-count`);
+            
+            countElement.textContent = items.length;
+
+            if (items.length === 0) {
+                listElement.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <p>No hay ${getTypeLabel(type)} registradas</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listElement.innerHTML = items.map(item => `
+                <div class="history-item">
+                    <div class="item-content">
+                        <div class="item-name">${item}</div>
+                        <div class="item-meta">${getTypeLabel(type)}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-danger btn-sm" onclick="removeItemFromHistory('${type}', '${item}')">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="12" height="12">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearHistoryDisplay() {
+            ['condiciones', 'alergias', 'medicamentos'].forEach(type => {
+                document.getElementById(`${type}-list`).innerHTML = `
+                    <div class="empty-state">
+                        <p>Seleccione un paciente para ver el historial</p>
+                    </div>
+                `;
+                document.getElementById(`${type}-count`).textContent = '0';
+            });
+        }
+
+        // Filtrar items en las listas
+        function filterItems(type) {
+            const searchTerm = document.getElementById(`search-${type}`).value.toLowerCase();
+            const items = currentMedicalHistory[type] || [];
+            
+            const filteredItems = items.filter(item => 
+                item.toLowerCase().includes(searchTerm)
+            );
+            
+            displayItems(type, filteredItems);
+            document.getElementById(`${type}-count`).textContent = `${filteredItems.length} de ${items.length}`;
+        }
+
+        // Mostrar modal de edición
+        function showEditHistoryModal() {
+            if (!currentPatientId) {
+                alert('Por favor, seleccione un paciente primero');
+                return;
+            }
+
+            // Inicializar arrays de edición con los datos actuales
+            editingCondiciones = [...(currentMedicalHistory.condiciones || [])];
+            editingAlergias = [...(currentMedicalHistory.alergias || [])];
+            editingMedicamentos = [...(currentMedicalHistory.medicamentos || [])];
+
+            document.getElementById('history-user-id').value = currentPatientId;
+            updatePreviewLists();
+            openModal('edit-history-modal');
+        }
+
+        // Agregar item durante edición
+        function addItem(type) {
+            const inputId = `new-${type}`;
+            const input = document.getElementById(inputId);
+            const value = input.value.trim();
+
+            if (!value) {
+                alert(`Por favor, ingrese un valor para ${getTypeLabel(type)}`);
+                return;
+            }
+
+            const editingArray = getEditingArray(type);
+            if (!editingArray.includes(value)) {
+                editingArray.push(value);
+                updatePreviewLists();
+                input.value = '';
+            } else {
+                alert(`Esta ${getTypeLabel(type)} ya existe en la lista`);
+            }
+        }
+
+        // Remover item durante edición
+        function removeEditingItem(type, item) {
+            const editingArray = getEditingArray(type);
+            const index = editingArray.indexOf(item);
+            if (index > -1) {
+                editingArray.splice(index, 1);
+                updatePreviewLists();
+            }
+        }
+
+        // Remover item del historial existente
+        async function removeItemFromHistory(type, item) {
+            if (!confirm(`¿Está seguro de que desea eliminar "${item}" del historial?`)) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const updateData = {};
+                updateData[type] = (currentMedicalHistory[type] || []).filter(i => i !== item);
+
+                const response = await fetch(`/medical-history/${currentPatientId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    alert('Item eliminado exitosamente');
+                    loadPatientHistory(); // Recargar el historial
+                } else {
+                    throw new Error('Error al eliminar item');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar el item: ' + error.message);
+            }
+        }
+
+        // Actualizar listas de preview en el modal
+        function updatePreviewLists() {
+            updatePreviewList('condiciones', editingCondiciones);
+            updatePreviewList('alergias', editingAlergias);
+            updatePreviewList('medicamentos', editingMedicamentos);
+        }
+
+        function updatePreviewList(type, items) {
+            const previewElement = document.getElementById(`${type}-preview`);
+            
+            if (items.length === 0) {
+                previewElement.innerHTML = '<div style="color: #6b7280; font-size: 0.875rem; text-align: center;">No hay items agregados</div>';
+                return;
+            }
+
+            previewElement.innerHTML = items.map(item => `
+                <div class="preview-item">
+                    <span>${item}</span>
+                    <button onclick="removeEditingItem('${type}', '${item}')">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Guardar historial médico
+        async function saveMedicalHistory() {
+            if (!currentPatientId) {
+                alert('No hay paciente seleccionado');
+                return;
+            }
+
+            const historyData = {
+                usuarioId: currentPatientId,
+                condiciones: editingCondiciones,
+                alergias: editingAlergias,
+                medicamentos: editingMedicamentos
+            };
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/medical-history', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(historyData)
+                });
+
+                if (response.ok) {
+                    alert('Historial médico guardado exitosamente');
+                    closeModal('edit-history-modal');
+                    loadPatientHistory(); // Recargar el historial
+                } else {
+                    throw new Error('Error al guardar historial médico');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al guardar el historial médico: ' + error.message);
+            }
+        }
+
+        // Funciones de utilidad
+        function getEditingArray(type) {
+            switch (type) {
+                case 'condicion': return editingCondiciones;
+                case 'alergia': return editingAlergias;
+                case 'medicamento': return editingMedicamentos;
+                default: return [];
+            }
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'condiciones': 'condiciones médicas',
+                'alergias': 'alergias',
+                'medicamentos': 'medicamentos',
+                'condicion': 'condición médica',
+                'alergia': 'alergia',
+                'medicamento': 'medicamento'
+            };
+            return labels[type] || type;
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

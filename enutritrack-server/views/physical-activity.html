@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tipos de Actividad Física - EnutriTrack</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+        }
+
+        .btn-secondary:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #9ca3af;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9fafb;
+        }
+
+        th {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            color: #4b5563;
+            font-size: 0.875rem;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .met-badge {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            font-weight: 700;
+        }
+
+        .categoria-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            background: #e0e7ff;
+            color: #3730a3;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .loading, .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: #f3f4f6;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .met-info {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-top: 0.5rem;
+        }
+
+        .met-info h4 {
+            font-size: 0.875rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .met-info p {
+            font-size: 0.75rem;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .intensity-indicator {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .intensity-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .intensity-dot.active {
+            background: #10b981;
+        }
+
+        .intensity-dot.moderate {
+            background: #f59e0b;
+        }
+
+        .intensity-dot.high {
+            background: #ef4444;
+        }
+
+        .calorie-example {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Tipos de Actividad Física</h1>
+            <button class="btn btn-primary" onclick="showCreateTipoActividadModal()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Nuevo Tipo
+            </button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="total-tipos">0</div>
+                <div class="stat-label">Total Tipos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-categorias">0</div>
+                <div class="stat-label">Categorías</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avg-met">0</div>
+                <div class="stat-label">MET Promedio</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="max-met">0</div>
+                <div class="stat-label">MET Máximo</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Catálogo de Actividades Físicas</h3>
+                <div class="filter-group">
+                    <div class="search-box">
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="text" id="search-tipos" placeholder="Buscar actividades..." onkeyup="filterTiposActividad()">
+                    </div>
+                    <select class="filter-select" id="categoria-filter" onchange="filterByCategoria()">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Actividad</th>
+                        <th>Categoría</th>
+                        <th>Valor MET</th>
+                        <th>Intensidad</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tipos-actividad-table">
+                    <tr>
+                        <td colspan="6" class="loading">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            <p>Cargando tipos de actividad...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal para Crear/Editar Tipo de Actividad -->
+    <div id="tipo-actividad-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="tipo-actividad-modal-title">Nuevo Tipo de Actividad</h3>
+                <button class="modal-close" onclick="closeModal('tipo-actividad-modal')">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="tipo-actividad-form">
+                    <input type="hidden" id="tipo-actividad-id">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nombre de la Actividad *</label>
+                        <input type="text" class="form-control" id="tipo-actividad-nombre" placeholder="Ej: Caminata rápida, Natación, Ciclismo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Categoría</label>
+                        <input type="text" class="form-control" id="tipo-actividad-categoria" placeholder="Ej: Cardio, Fuerza, Deportes">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Valor MET (Equivalente Metabólico) *</label>
+                        <input type="number" class="form-control" id="tipo-actividad-met" 
+                               placeholder="3.5" step="0.1" min="1" max="20" required
+                               oninput="updateIntensityIndicator()">
+                        
+                        <div class="met-info">
+                            <h4>¿Qué es el valor MET?</h4>
+                            <p>El MET (Metabolic Equivalent of Task) mide la intensidad de una actividad física. 
+                                Un MET es la energía que consumes en reposo.</p>
+                            
+                            <div class="intensity-indicator">
+                                <div class="intensity-dot active" id="intensity-low"></div>
+                                <div class="intensity-dot" id="intensity-moderate"></div>
+                                <div class="intensity-dot" id="intensity-high"></div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">
+                                    Intensidad: <span id="intensity-label">Baja</span>
+                                </div>
+                            </div>
+                            
+                            <div class="calorie-example" id="calorie-example">
+                                Ejemplo: Una persona de 70kg quemaría aproximadamente 0 calorías en 30 minutos.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control form-textarea" id="tipo-actividad-descripcion" 
+                                  placeholder="Describe la actividad, técnica, beneficios..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('tipo-actividad-modal')">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" onclick="saveTipoActividad()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Guardar Actividad
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allTiposActividad = [];
+        let currentTipoActividadId = null;
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTiposActividad();
+        });
+
+        // Cargar tipos de actividad desde la API
+        async function loadTiposActividad() {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch('/tipos-actividad', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar tipos de actividad');
+                }
+
+                allTiposActividad = await response.json();
+                renderTiposActividad(allTiposActividad);
+                updateStats(allTiposActividad);
+                populateCategoriaFilter(allTiposActividad);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('tipos-actividad-table').innerHTML = 
+                    '<tr><td colspan="6" class="empty-state">Error al cargar tipos de actividad</td></tr>';
+            }
+        }
+
+        // Renderizar tabla de tipos de actividad
+        function renderTiposActividad(tipos) {
+            const tbody = document.getElementById('tipos-actividad-table');
+            
+            if (!tipos || tipos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No hay tipos de actividad registrados</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = tipos.map(tipo => `
+                <tr>
+                    <td>
+                        <strong>${tipo.nombre}</strong>
+                    </td>
+                    <td>
+                        ${tipo.categoria ? `<span class="categoria-tag">${tipo.categoria}</span>` : '<span style="color: #9ca3af;">Sin categoría</span>'}
+                    </td>
+                    <td>
+                        <span class="badge met-badge">${tipo.met_value} MET</span>
+                    </td>
+                    <td>
+                        <span class="badge ${getIntensityBadgeClass(tipo.met_value)}">
+                            ${getIntensityLabel(tipo.met_value)}
+                        </span>
+                    </td>
+                    <td>
+                        <small style="color: #6b7280;">${tipo.descripcion || 'Sin descripción'}</small>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary btn-sm" onclick="editTipoActividad('${tipo.id}')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Editar
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTipoActividad('${tipo.id}')">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Eliminar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Actualizar estadísticas
+        function updateStats(tipos) {
+            const totalTipos = tipos.length;
+            const categorias = [...new Set(tipos.map(t => t.categoria).filter(Boolean))];
+            const avgMet = tipos.length > 0 ? 
+                (tipos.reduce((sum, t) => sum + parseFloat(t.met_value), 0) / tipos.length).toFixed(1) : 0;
+            const maxMet = tipos.length > 0 ? 
+                Math.max(...tipos.map(t => parseFloat(t.met_value))).toFixed(1) : 0;
+
+            document.getElementById('total-tipos').textContent = totalTipos;
+            document.getElementById('total-categorias').textContent = categorias.length;
+            document.getElementById('avg-met').textContent = avgMet;
+            document.getElementById('max-met').textContent = maxMet;
+        }
+
+        // Poblar filtro de categorías
+        function populateCategoriaFilter(tipos) {
+            const select = document.getElementById('categoria-filter');
+            const categorias = [...new Set(tipos.map(t => t.categoria).filter(Boolean))];
+            
+            categorias.forEach(categoria => {
+                const option = document.createElement('option');
+                option.value = categoria;
+                option.textContent = categoria;
+                select.appendChild(option);
+            });
+        }
+
+        // Filtrar tipos de actividad
+        function filterTiposActividad() {
+            const searchTerm = document.getElementById('search-tipos').value.toLowerCase();
+            const categoria = document.getElementById('categoria-filter').value;
+            
+            let filtered = allTiposActividad.filter(tipo => 
+                tipo.nombre.toLowerCase().includes(searchTerm) ||
+                (tipo.descripcion && tipo.descripcion.toLowerCase().includes(searchTerm))
+            );
+
+            if (categoria) {
+                filtered = filtered.filter(tipo => tipo.categoria === categoria);
+            }
+
+            renderTiposActividad(filtered);
+        }
+
+        function filterByCategoria() {
+            filterTiposActividad();
+        }
+
+        // Mostrar modal para crear tipo de actividad
+        function showCreateTipoActividadModal() {
+            currentTipoActividadId = null;
+            document.getElementById('tipo-actividad-modal-title').textContent = 'Nuevo Tipo de Actividad';
+            document.getElementById('tipo-actividad-form').reset();
+            document.getElementById('tipo-actividad-id').value = '';
+            updateIntensityIndicator();
+            openModal('tipo-actividad-modal');
+        }
+
+        // Editar tipo de actividad
+        async function editTipoActividad(tipoId) {
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`/tipos-actividad/${tipoId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar tipo de actividad');
+                }
+
+                const tipo = await response.json();
+                currentTipoActividadId = tipoId;
+
+                document.getElementById('tipo-actividad-modal-title').textContent = 'Editar Tipo de Actividad';
+                document.getElementById('tipo-actividad-id').value = tipo.id;
+                document.getElementById('tipo-actividad-nombre').value = tipo.nombre;
+                document.getElementById('tipo-actividad-categoria').value = tipo.categoria || '';
+                document.getElementById('tipo-actividad-met').value = tipo.met_value;
+                document.getElementById('tipo-actividad-descripcion').value = tipo.descripcion || '';
+
+                updateIntensityIndicator();
+
+                openModal('tipo-actividad-modal');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar los datos del tipo de actividad');
+            }
+        }
+
+        // Guardar tipo de actividad (crear o actualizar)
+        async function saveTipoActividad() {
+            const form = document.getElementById('tipo-actividad-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const tipoActividadData = {
+                nombre: document.getElementById('tipo-actividad-nombre').value,
+                categoria: document.getElementById('tipo-actividad-categoria').value || null,
+                met_value: parseFloat(document.getElementById('tipo-actividad-met').value),
+                descripcion: document.getElementById('tipo-actividad-descripcion').value || null
+            };
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const url = currentTipoActividadId ? `/tipos-actividad/${currentTipoActividadId}` : '/tipos-actividad';
+                const method = currentTipoActividadId ? 'PATCH' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(tipoActividadData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al guardar tipo de actividad');
+                }
+
+                alert(currentTipoActividadId ? 'Tipo de actividad actualizado exitosamente' : 'Tipo de actividad creado exitosamente');
+                closeModal('tipo-actividad-modal');
+                loadTiposActividad();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al guardar el tipo de actividad: ' + error.message);
+            }
+        }
+
+        // Eliminar tipo de actividad
+        async function deleteTipoActividad(tipoId) {
+            if (!confirm('¿Está seguro de que desea eliminar este tipo de actividad? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`/tipos-actividad/${tipoId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al eliminar tipo de actividad');
+                }
+
+                alert('Tipo de actividad eliminado exitosamente');
+                loadTiposActividad();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar el tipo de actividad: ' + error.message);
+            }
+        }
+
+        // Actualizar indicador de intensidad
+        function updateIntensityIndicator() {
+            const metValue = parseFloat(document.getElementById('tipo-actividad-met').value) || 1;
+            
+            // Reset all dots
+            document.getElementById('intensity-low').className = 'intensity-dot';
+            document.getElementById('intensity-moderate').className = 'intensity-dot';
+            document.getElementById('intensity-high').className = 'intensity-dot';
+            
+            let intensityLabel = '';
+            let intensityColor = '';
+            
+            if (metValue < 3) {
+                document.getElementById('intensity-low').className = 'intensity-dot active';
+                intensityLabel = 'Baja';
+                intensityColor = '#10b981';
+            } else if (metValue < 6) {
+                document.getElementById('intensity-moderate').className = 'intensity-dot moderate';
+                intensityLabel = 'Moderada';
+                intensityColor = '#f59e0b';
+            } else {
+                document.getElementById('intensity-high').className = 'intensity-dot high';
+                intensityLabel = 'Alta';
+                intensityColor = '#ef4444';
+            }
+            
+            document.getElementById('intensity-label').textContent = intensityLabel;
+            document.getElementById('intensity-label').style.color = intensityColor;
+            
+            // Calcular ejemplo de calorías quemadas
+            const calories = calculateCaloriesBurned(metValue, 70, 30); // 70kg, 30 minutos
+            document.getElementById('calorie-example').innerHTML = 
+                `Ejemplo: Una persona de 70kg quemaría aproximadamente <strong>${calories} calorías</strong> en 30 minutos.`;
+        }
+
+        // Calcular calorías quemadas (fórmula simplificada)
+        function calculateCaloriesBurned(met, weightKg, minutes) {
+            // Fórmula: MET * peso(kg) * tiempo(horas)
+            const calories = met * weightKg * (minutes / 60);
+            return Math.round(calories);
+        }
+
+        // Funciones de utilidad
+        function getIntensityLabel(metValue) {
+            if (metValue < 3) return 'Baja';
+            if (metValue < 6) return 'Moderada';
+            return 'Alta';
+        }
+
+        function getIntensityBadgeClass(metValue) {
+            if (metValue < 3) return 'badge-success';
+            if (metValue < 6) return 'badge-warning';
+            return 'badge-danger';
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
